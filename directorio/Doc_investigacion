@@ -1,0 +1,77 @@
+================================================================================
+                    DECLARACIÓN DE USO DE HERRAMIENTAS DE IA
+================================================================================
+
+--------------------------------------------------------------------------------
+USO DE INTELIGENCIA ARTIFICIAL (INVESTIGACIÓN Y SINTAXIS)
+--------------------------------------------------------------------------------
+Se utilizó asistencia de Inteligencia Artificial de manera puntual y como 
+herramienta de investigación/apoyo en los siguientes aspectos técnicos:
+
+a) Investigación sobre Comunicación entre Componentes (Angular Signals):
+1. Definir un output tipado con un valor
+Para asegurar que el evento envíe un tipo de dato específico (como number o string) y aprovechar el autocompletado y validación estricta de TypeScript, se define el tipo de dato dentro de los símbolos de diamante < > al momento de inicializar la función output().
+
+TypeScript
+import { Component, output } from '@angular/core';
+
+export class ComponenteHijo {
+  // Define que este evento EXCLUSIVAMENTE emitirá números
+  onDelete = output<number>(); 
+  
+  // Ejemplo con string:
+  // onStatusChange = output<string>();
+}
+Nota: Si el evento no necesitara enviar ningún dato (solo avisar que algo pasó), se definiría como output<void>().
+
+2. Emitir el valor desde el hijo
+Una vez definido el output, se utiliza su método integrado .emit() para disparar el evento. Dentro de los paréntesis de este método se debe pasar el dato exacto que se desea enviar al padre. Este dato debe coincidir obligatoriamente con el tipo definido en el paso anterior.
+
+TypeScript
+export class ComponenteHijo {
+  onDelete = output<number>();
+  usuarioId = 42;
+
+  eliminarUsuario() {
+    // Se envía el valor '42' (que es un number) hacia el exterior
+    this.onDelete.emit(this.usuarioId); 
+  }
+}
+3. Recibir el valor en el template del padre con $event
+En el archivo HTML del componente padre, se coloca el nombre del evento entre paréntesis ( ) sobre la etiqueta del componente hijo. Para capturar el dato exacto que el hijo envió a través del .emit(), Angular expone una variable local reservada llamada $event.
+
+Esta variable contiene la "carga útil" (el número o string) del evento emitido.
+
+HTML
+<!-- HTML del Componente Padre -->
+
+<!-- Escuchamos (onDelete) y le pasamos $event a nuestra función -->
+<app-componente-hijo 
+  (onDelete)="funcionDelPadre($event)">
+</app-componente-hijo>
+TypeScript
+// TypeScript del Componente Padre
+export class ComponentePadre {
+  
+  // El parámetro idRecibido tomará exactamente el valor que traía $event
+  funcionDelPadre(idRecibido: number) {
+    console.log('El hijo solicitó eliminar el ID:', idRecibido);
+  }
+}
+El flujo completo es: el hijo ejecuta .emit(42), Angular toma ese 42 y lo nombra temporalmente $event en el HTML del padre, y finalmente el padre lo inyecta como argumento en su propia función.
+
+b) Depuración de Errores y Entorno de Compilación:
+   - Consultas técnicas para corregir discrepancias de tipos de eventos 
+     (`Event` vs `number`) generadas en la plantilla principal.
+   - Diagnóstico y ajuste de la propiedad `rootDir` en el archivo de 
+     configuración `tsconfig.app.json`, lo tuve que eliminar para que no marcará error.
+
+c) Optimización de Plantilla:
+   - Implementación del bloque sintáctico `@empty` integrado en la directiva 
+     `@for` para la gestión declarativa de estados vacíos.
+--------------------------------------------------------------------------------
+FUENTES Y HERRAMIENTAS UTILIZADAS
+--------------------------------------------------------------------------------
+- Asistente de Inteligencia Artificial: Gemini (Modelo 3.1 Pro).
+- Documentación y foros técnicos (apoyados por la búsqueda de IA).
+================================================================================
